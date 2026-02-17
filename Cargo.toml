@@ -9,3 +9,4 @@ authors = ["kkettums"]
 
 [dependencies]
 discord-presence = "3.2"
+regex = "1.12.3"
