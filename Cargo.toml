@@ -1,0 +1,11 @@
+[package]
+edition = "2024"
+name = "hxrp"
+description = "Discord RPC built for helix"
+license = "none"
+readme = "./README.md"
+version = "0.0.1"
+authors = ["kkettums"]
+
+[dependencies]
+discord-presence = "3.2"
