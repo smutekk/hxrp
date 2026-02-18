@@ -31,15 +31,16 @@ fn fetch_running(name: &str) -> Result<(ExitStatus, String, String), String> {
 
 fn set_rpc(rpc_client: &mut Client, file_name: &str, file_ext: &str) {
     let top_msg = format!("Currently editing: {file_name}");
+    let trimmed_ext = file_ext.trim();
 
-    println!("{file_ext}");
-
-    let icon = match file_ext {
+    let icon = match trimmed_ext {
         "rs" => "ferris",
         "py" => "python",
         "sh" => "bash",
-        _ => "rs",
+        _ => "none",
     };
+
+    // println!("{icon}");
 
     rpc_client
         .set_activity(|act| act.state(top_msg).assets(|ass| ass.small_image(icon)))
