@@ -4,7 +4,7 @@ name = "hxrp"
 description = "Discord RPC built for helix"
 license = "none"
 readme = "./README.md"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["kkettums"]
 
 [dependencies]

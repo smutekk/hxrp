@@ -47,6 +47,10 @@ fn set_rpc(rpc_client: &mut Client, file_name: &str, file_ext: &str) {
         .expect("Failed to set activity. :c");
 }
 
+fn clear_rpc(rpc_client: &mut Client) {
+    rpc_client.clear_activity().expect("Failed to clear RPC!");
+}
+
 fn main() {
     let mut rpc_client = Client::new(1385047166632071379);
 
@@ -62,6 +66,8 @@ fn main() {
             Ok((status, file_ext, file_name)) => {
                 if status.success() {
                     set_rpc(&mut rpc_client, &file_name, &file_ext);
+                } else {
+                    clear_rpc(&mut rpc_client);
                 }
             }
             Err(e) => eprintln!("Error occured: {e}"),
