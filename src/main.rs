@@ -6,7 +6,7 @@ use std::{
     thread::sleep,
 };
 
-fn fetch_running(name: &str) -> Result<(ExitStatus, String), String> {
+fn fetch_running(name: &str) -> Result<(ExitStatus, String, String), String> {
     let _p_command = Command::new("pgrep")
         .arg("-x")
         .arg(name)
@@ -25,14 +25,24 @@ fn fetch_running(name: &str) -> Result<(ExitStatus, String), String> {
     let re = Regex::new(r"^[^ ]* *[^ ]* *").unwrap();
 
     let file_name = re.replace(&file_command_output, "");
-    Ok((file_command.status, file_name.to_string()))
+    let file_ext = file_name.split(".").last().unwrap().to_string();
+    Ok((file_command.status, file_ext, file_name.to_string()))
 }
 
-fn set_rpc(rpc_client: &mut Client, file_name: &str) {
+fn set_rpc(rpc_client: &mut Client, file_name: &str, file_ext: &str) {
     let top_msg = format!("Currently editing: {file_name}");
 
+    println!("{file_ext}");
+
+    let icon = match file_ext {
+        "rs" => "ferris",
+        "py" => "python",
+        "sh" => "bash",
+        _ => "rs",
+    };
+
     rpc_client
-        .set_activity(|act| act.state(top_msg))
+        .set_activity(|act| act.state(top_msg).assets(|ass| ass.small_image(icon)))
         .expect("Failed to set activity. :c");
 }
 
@@ -48,10 +58,9 @@ fn main() {
     loop {
         sleep(time::Duration::from_secs(5));
         match fetch_running("helix") {
-            Ok((status, file_name)) => {
+            Ok((status, file_ext, file_name)) => {
                 if status.success() {
-                    println!("{file_name}");
-                    set_rpc(&mut rpc_client, &file_name);
+                    set_rpc(&mut rpc_client, &file_name, &file_ext);
                 } else {
                     println!("Helix isn't running!");
                 }
