@@ -62,8 +62,6 @@ fn main() {
             Ok((status, file_ext, file_name)) => {
                 if status.success() {
                     set_rpc(&mut rpc_client, &file_name, &file_ext);
-                } else {
-                    println!("Helix isn't running!");
                 }
             }
             Err(e) => eprintln!("Error occured: {e}"),
