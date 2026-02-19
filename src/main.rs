@@ -1,4 +1,4 @@
-// TODO: check for discord too
+// TODO: check for rpc running in clear rpc
 
 use core::time;
 use discord_presence::{Client, Event};
@@ -7,6 +7,8 @@ use std::{
     process::{Command, ExitStatus},
     thread::sleep,
 };
+
+static mut RPC_RUNNING: bool = false;
 
 fn fetch_running(name: &str) -> Result<(ExitStatus, String, String), String> {
     let _p_command = Command::new("pgrep")
@@ -44,16 +46,21 @@ fn set_rpc(rpc_client: &mut Client, file_name: &str, file_ext: &str) {
 
     // println!("{icon}");
 
-    match fetch_running("electron") {
-        Ok((status, _file_ext, _file_name)) => {
-            if status.success() {
-                rpc_client
-                    .set_activity(|act| act.state(top_msg).assets(|ass| ass.small_image(icon)))
-                    .expect("Failed to set activity. :c");
+    unsafe {
+        match fetch_running("electron") {
+            Ok((status, _file_ext, _file_name)) => {
+                if status.success() {
+                    rpc_client
+                        .set_activity(|act| act.state(top_msg).assets(|ass| ass.small_image(icon)))
+                        .expect("Failed to set activity. :c");
+                    RPC_RUNNING = true;
+                } else {
+                    RPC_RUNNING = false;
+                }
             }
-        }
-        Err(e) => {
-            println!("Error! electron not found: {e}");
+            Err(e) => {
+                println!("Error! electron not found: {e}");
+            }
         }
     }
 }
@@ -73,17 +80,22 @@ fn main() {
 
     rpc_client.start();
 
-    loop {
-        sleep(time::Duration::from_secs(5));
-        match fetch_running("helix") {
-            Ok((status, file_ext, file_name)) => {
-                if status.success() {
-                    set_rpc(&mut rpc_client, &file_name, &file_ext);
-                } else {
-                    clear_rpc(&mut rpc_client).expect("Failed to clear, retrying..");
+    unsafe {
+        loop {
+            sleep(time::Duration::from_secs(5));
+            match fetch_running("helix") {
+                Ok((status, file_ext, file_name)) => {
+                    if status.success() {
+                        set_rpc(&mut rpc_client, &file_name, &file_ext);
+                    } else {
+                        if RPC_RUNNING {
+                            clear_rpc(&mut rpc_client).expect("Failed to clear, retrying..");
+                        } else {
+                        }
+                    }
                 }
+                Err(e) => eprintln!("Error occured: {e}"),
             }
-            Err(e) => eprintln!("Error occured: {e}"),
         }
     }
 }
