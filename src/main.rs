@@ -1,3 +1,5 @@
+// TODO: check for discord too
+
 use core::time;
 use discord_presence::{Client, Event};
 use regex::Regex;
@@ -42,13 +44,24 @@ fn set_rpc(rpc_client: &mut Client, file_name: &str, file_ext: &str) {
 
     // println!("{icon}");
 
-    rpc_client
-        .set_activity(|act| act.state(top_msg).assets(|ass| ass.small_image(icon)))
-        .expect("Failed to set activity. :c");
+    match fetch_running("electron") {
+        Ok((status, _file_ext, _file_name)) => {
+            if status.success() {
+                rpc_client
+                    .set_activity(|act| act.state(top_msg).assets(|ass| ass.small_image(icon)))
+                    .expect("Failed to set activity. :c");
+            }
+        }
+        Err(e) => {
+            println!("Error! electron not found: {e}");
+        }
+    }
 }
 
-fn clear_rpc(rpc_client: &mut Client) {
+fn clear_rpc(rpc_client: &mut Client) -> Result<(), Box<dyn std::error::Error>> {
     rpc_client.clear_activity().expect("Failed to clear RPC!");
+
+    Ok(())
 }
 
 fn main() {
@@ -67,7 +80,7 @@ fn main() {
                 if status.success() {
                     set_rpc(&mut rpc_client, &file_name, &file_ext);
                 } else {
-                    clear_rpc(&mut rpc_client);
+                    clear_rpc(&mut rpc_client).expect("Failed to clear, retrying..");
                 }
             }
             Err(e) => eprintln!("Error occured: {e}"),
