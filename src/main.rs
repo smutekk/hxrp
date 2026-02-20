@@ -41,6 +41,8 @@ fn set_rpc(rpc_client: &mut Client, file_name: &str, file_ext: &str) {
         "rs" => "ferris",
         "py" => "python",
         "sh" => "bash",
+        "toml" => "ferris",
+        "qml" => "qt",
         _ => "none",
     };
 
