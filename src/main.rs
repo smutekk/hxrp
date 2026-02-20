@@ -1,4 +1,4 @@
-// TODO: check for rpc running in clear rpc
+// TODO:
 
 use core::time;
 use discord_presence::{Client, Event};
@@ -77,7 +77,7 @@ fn main() {
     let mut rpc_client = Client::new(1385047166632071379);
 
     rpc_client
-        .on_event(Event::Ready, |ctx| println!("Ready!"))
+        .on_event(Event::Ready, |_ctx| println!("Ready!"))
         .persist();
 
     rpc_client.start();
